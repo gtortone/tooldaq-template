@@ -2,9 +2,9 @@
 
 init=1
 tooldaq=1
-boostflag=1
-zmq=1
-final=1
+boostflag=0
+zmq=0
+final=0
 rootflag=0
 setup=1
 threads=`nproc --all`
