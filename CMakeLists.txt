@@ -11,6 +11,7 @@ file(GLOB_RECURSE SRC_FILES
    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp 
    ${CMAKE_CURRENT_SOURCE_DIR}/UserTools/Factory/*.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/UserTools/MyFirstTool/*.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/UserTools/SlowControl/*.cpp
 )
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 
@@ -18,10 +19,11 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/in
 target_include_directories(${PROJECT_NAME} PUBLIC $ENV{TOOLDAQ_INCDIR})
 # to add a new Tool define include path here
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/UserTools/MyFirstTool)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/UserTools/SlowControl)
 
-add_library(ToolChain SHARED IMPORTED)
-set_target_properties(ToolChain PROPERTIES
-   IMPORTED_LOCATION "$ENV{TOOLDAQ_LIBDIR}/libToolChain.so"
+add_library(ToolDAQChain SHARED IMPORTED)
+set_target_properties(ToolDAQChain PROPERTIES
+   IMPORTED_LOCATION "$ENV{TOOLDAQ_LIBDIR}/libToolDAQChain.so"
    INTERFACE_INCLUDE_DIRECTORIES "$ENV{TOOLDAQ_INCDIR}"
 )
 
@@ -37,9 +39,12 @@ set_target_properties(DataModel PROPERTIES
    INTERFACE_INCLUDE_DIRECTORIES "$ENV{TOOLDAQ_INCDIR}"
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC ToolChain)
+target_link_libraries(${PROJECT_NAME} PUBLIC ToolDAQChain)
 target_link_libraries(${PROJECT_NAME} PUBLIC Store)
 target_link_libraries(${PROJECT_NAME} PUBLIC DataModel)
 
 find_package(ZeroMQ REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC zmq)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC boost_serialization)
+

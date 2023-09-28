@@ -1,8 +1,8 @@
-#include "ToolChain.h"
+#include "ToolDAQChain.h"
 
 int main(int argc, char* argv[]) {
 
-   ToolChain tools("configfiles/MyToolChain/ToolChainConfig");
+   ToolDAQChain tools("configfiles/MyToolChain/ToolChainConfig");
 
    return 0;
 }
