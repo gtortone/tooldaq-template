@@ -17,6 +17,7 @@ add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC $ENV{TOOLDAQ_INCDIR})
+
 # to add a new Tool define include path here
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/UserTools/MyFirstTool)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/UserTools/SlowControl)
@@ -46,5 +47,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC DataModel)
 find_package(ZeroMQ REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC zmq)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC boost_serialization)
-
+find_package(Boost REQUIRED COMPONENTS serialization)
+target_include_directories(${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${Boost_SERIALIZATION_LIBRARY})
