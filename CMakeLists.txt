@@ -1,52 +1,81 @@
-cmake_minimum_required(VERSION 3.13)
 
-project(main VERSION 1.0)
+cmake_minimum_required (VERSION 2.6)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "-fPIC -Wpedantic -Wno-deprecated-declarations -O3")
+project (ToolDAQApplicaiton)
 
-# to add a new Tool define source path here
-file(GLOB_RECURSE SRC_FILES 
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp 
-   ${CMAKE_CURRENT_SOURCE_DIR}/UserTools/Factory/*.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/UserTools/MyFirstTool/*.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/UserTools/SlowControl/*.cpp
-)
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+# set DEPENDENCIES_PATH to path containing libDAQInterface, ToolDAQFramework, ToolFrameworkCore libraries
+set(DEPENDENCIES_PATH "/home/tortone/devel/HyperK/tooldaq/lib")
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} PUBLIC $ENV{TOOLDAQ_INCDIR})
+set(BOOST_LIBS boost_date_time boost_serialization boost_iostreams)
+set(ZMQ_LIBS zmq)
 
-# to add a new Tool define include path here
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/UserTools/MyFirstTool)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/UserTools/SlowControl)
+set(DATAMODEL_INC "")
+set(DATAMODEL_LIB_PATH "")
+set(DATAMODEL_LIBS "")
 
-add_library(ToolDAQChain SHARED IMPORTED)
-set_target_properties(ToolDAQChain PROPERTIES
-   IMPORTED_LOCATION "$ENV{TOOLDAQ_LIBDIR}/libToolDAQChain.so"
-   INTERFACE_INCLUDE_DIRECTORIES "$ENV{TOOLDAQ_INCDIR}"
-)
+set(MYTOOLS_INC "")
+set(MYTOOLS_LIB_PATH "")
+set(MYTOOLS_LIBS "")
 
-add_library(Store SHARED IMPORTED)
-set_target_properties(Store PROPERTIES
-   IMPORTED_LOCATION "$ENV{TOOLDAQ_LIBDIR}/libStore.so"
-   INTERFACE_INCLUDE_DIRECTORIES "$ENV{TOOLDAQ_INCDIR}"
+set(TOOLFRAMEWORK_INC "${DEPENDENCIES_PATH}/ToolFrameworkCore/include")
+set(TOOLFRAMEWORK_LIBS_PATH "${DEPENDENCIES_PATH}/ToolFrameworkCore/lib")
+set(TOOLFRAMEWORK_LIBS DataModelBase Logging Store ToolChain)
+
+set(TOOLDAQ_INC "${DEPENDENCIES_PATH}/ToolDAQFramework/include")
+set(TOOLDAQ_LIBS_PATH "${DEPENDENCIES_PATH}/ToolDAQFramework/lib")
+set(TOOLDAQ_LIBS DAQDataModelBase DAQLogging DAQStore ServiceDiscovery ToolDAQChain)
+
+include_directories (
+   ${DATAMODEL_INC} 
+   ${MYTOOLS_INC} 
+   ${TOOLFRAMEWORK_INC} 
+   ${TOOLDAQ_INC} 
 )
 
-add_library(DataModel SHARED IMPORTED)
-set_target_properties(DataModel PROPERTIES
-   IMPORTED_LOCATION "$ENV{TOOLDAQ_LIBDIR}/libDataModel.so"
-   INTERFACE_INCLUDE_DIRECTORIES "$ENV{TOOLDAQ_INCDIR}"
+link_directories(
+   ${DATAMODEL_LIB_PATH} 
+   ${MYTOOLS_LIB_PATH} 
+   ${TOOLFRAMEWORK_LIBS_PATH} 
+   ${TOOLDAQ_LIBS_PATH} 
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC ToolDAQChain)
-target_link_libraries(${PROJECT_NAME} PUBLIC Store)
-target_link_libraries(${PROJECT_NAME} PUBLIC DataModel)
+add_executable (main ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
-find_package(ZeroMQ REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC zmq)
+target_link_libraries (
+   main
+   MyTools
+   DataModel
+   ${DATAMODEL_LIBS} 
+   ${MYTOOLS_LIBS} 
+   ${TOOLFRAMEWORK_LIBS} 
+   ${TOOLDAQ_LIBS} 
+   ${ZMQ_LIBS} 
+   ${BOOST_LIBS} 
+)
 
-find_package(Boost REQUIRED COMPONENTS serialization)
-target_include_directories(${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${Boost_SERIALIZATION_LIBRARY})
+MACRO(HEADER_DIRECTORIES return_list)
+    FILE(GLOB_RECURSE new_list ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/DataModel/*.h ${PROJECT_SOURCE_DIR}/UserTools/*.h )
+    FILE(COPY ${new_list} DESTINATION ${PROJECT_BINARY_DIR}/include)
+    SET(dir_list "")
+    FOREACH(file_path ${new_list})
+        GET_FILENAME_COMPONENT(dir_path ${file_path} PATH)
+        SET(dir_list ${dir_list} ${dir_path})
+    ENDFOREACH()
+    LIST(REMOVE_DUPLICATES dir_list)
+    SET(${return_list} ${dir_list})
+ENDMACRO()
+
+FILE(COPY ${PROJECT_SOURCE_DIR}/configfiles DESTINATION ${PROJECT_BINARY_DIR}/)
+
+HEADER_DIRECTORIES(header_list)
+include_directories(${header_list})
+
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+
+file(GLOB_RECURSE DATAMODEL_SRC RELATIVE ${CMAKE_SOURCE_DIR} "DataModel/*.cpp")
+add_library(DataModel SHARED ${DATAMODEL_SRC})
+
+file(GLOB_RECURSE MYTOOLS_SRC RELATIVE ${CMAKE_SOURCE_DIR} "UserTools/*.cpp")
+add_library(MyTools SHARED ${MYTOOLS_SRC})
+
+

@@ -22,14 +22,11 @@ then
 	    
 	    dialog --radiolist "Select Tool Template:" 0 0 0 \
 		"<Blank>" . on \
-		`for template in \`ls $TOOLDAQ_TEMPLATEDIR | grep .cpp | sed s:MyTool:: | sed s:.cpp::\`
+		`for template in \`ls template/* | grep .cpp | sed s:template/MyTool:: | sed s:.cpp::\`
 	   do
 	   echo $template . off
-      done ;
-		for template2 in \`ls $TOOLFW_TEMPLATEDIR | grep .cpp | sed s:MyTool:: | sed s:.cpp::\`
-	   do
-	   echo $template2 . off
-      done` 2>answer
+	   done
+          ` 2>answer
 	    
 	    if [ $? -eq 0 ]
 	    then
@@ -66,47 +63,18 @@ else
 fi
 
 
-if [ "$dir" != "" ]
-then
-
-   srcdir=""
-   if [ -f $TOOLDAQ_TEMPLATEDIR/MyTool$template.h ]
-   then
-    srcdir=$TOOLDAQ_TEMPLATEDIR
-   fi
-
-   if [ -f $TOOLFW_TEMPLATEDIR/MyTool$template.h ]
-   then
-    srcdir=$TOOLFW_TEMPLATEDIR
-   fi
-
-   if [ "$srcdir" == "" ]
-   then
-   echo -e "\e[38;5;196mError template not found \e[0m: usage = \"./newTool.sh \e[38;5;226m <ToolNAME> \e[38;5;46m <TemplateNAME> \e[0m\"  if <TemplateName> is blank then blank template is used"
-   echo -e "Valid tools template names are:"
-   echo -e "\e[38;5;46m<BLANK>"
-   for name in `ls $TOOLDAQ_TEMPLATEDIR/ |grep '\.h' |grep -v "h~" |sed s:"\.h"::|sed s:"MyTool"::`
-   do
-       echo $name
-   done    
-   for name in `ls $TOOLFW_TEMPLATEDIR/ |grep '\.h' |grep -v "h~" |sed s:"\.h"::|sed s:"MyTool"::`
-   do
-       echo $name
-   done    
-   echo -e "\e[0m"
-
-   exit
-   fi
+    if [ "$dir" != "" ]
+    then
 	
 	if [ -d $dir ]
 	then
 	    echo -e "\e[38;5;196mERROR!!! Tool directory already exists \e[0m"
 	else
+	    
 	    mkdir $dir
-
-	    more $srcdir/MyTool$template.h | sed s:MyTool$template:$dir:g | sed s:MYTOOL${template}_H:${dir}_H:g > ./$dir/$dir.h
-	    more $srcdir/MyTool$template.cpp | sed s:MyTool$template:$dir:g | sed s:MyTool$template\(\):$dir\(\):g > ./$dir/$dir.cpp
-	    more $srcdir/README.md | sed s:MyTool:$dir:g | sed s:MyTool\(\):$dir\(\):g > ./$dir/README.md
+	    more template/MyTool$template.h | sed s:MyTool$template:$dir:g | sed s:MYTOOL${template}_H:${dir}_H:g > ./$dir/$dir.h
+	    more template/MyTool$template.cpp | sed s:MyTool$template:$dir:g | sed s:MyTool$template\(\):$dir\(\):g > ./$dir/$dir.cpp
+	    more template/README.md | sed s:MyTool:$dir:g | sed s:MyTool\(\):$dir\(\):g > ./$dir/README.md
 	    echo "#include \"$dir.h\"" >>Unity.h
 	    
 	    while read line
@@ -119,4 +87,15 @@ then
 	    done < Factory/Factory.cpp
 	    mv Factory/Factory.cpp.tmp Factory/Factory.cpp
 	fi
-fi	
+    else
+	
+	echo -e "\e[38;5;196mError no name given \e[0m: usage = \"./newTool.sh \e[38;5;226m <ToolNAME> \e[38;5;46m <TemplateNAME> \e[0m\"  if <TemplateName> is blank then blank template is used"
+	echo -e "Valid tools template names are:"
+	echo -e "\e[38;5;46m<BLANK>"
+	for name in `ls template/ |grep '\.h' |grep -v "h~" |sed s:"\.h"::|sed s:"MyTool"::`
+	do
+	    echo $name
+	done    
+	echo -e "\e[0m"
+    fi
+    
