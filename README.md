@@ -23,8 +23,6 @@ make clean
 make
 ```
 
-- Modify `setup.sh` script (`TOOLFW_BASEDIR`, `TOOLDAQ_BASEDIR`) with paths of ToolFrameworkCore and ToolDAQFramework libraries
-
 - Install following libraries with your package manager utility
 
 ```
@@ -34,5 +32,25 @@ boost_serialization
 cppzmq
 ```
 
-- `source setup.sh` and you are ready to write/build your ToolDAQ application !
+### Build with GNU-Make
 
+- edit Makefile and modify `Dependencies` accordingly to your setup
+
+- start build
+
+  ```
+  make
+  ```
+
+### Build with CMake
+
+- edit CMakeLists.txt and modify `DEPENDENCIES_PATH` accordingly to your setup
+
+- start build
+
+  ```
+  mkdir build
+  cd build
+  cmake ..
+  make
+  ```
