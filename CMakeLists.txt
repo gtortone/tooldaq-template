@@ -1,21 +1,21 @@
 
 cmake_minimum_required (VERSION 2.6)
 
-project (ToolDAQApplicaiton)
+project (ToolDAQApplication)
+
+set(CMAKE_CXX_FLAGS "-fPIC -O3  -std=c++11 -Wno-comment")
 
 # set DEPENDENCIES_PATH to path containing libDAQInterface, ToolDAQFramework, ToolFrameworkCore libraries
-set(DEPENDENCIES_PATH "/home/tortone/devel/HyperK/tooldaq/lib")
+set(DEPENDENCIES_PATH "/opt")
 
 set(BOOST_LIBS boost_date_time boost_serialization boost_iostreams)
 set(ZMQ_LIBS zmq)
 
-set(DATAMODEL_INC "")
-set(DATAMODEL_LIB_PATH "")
-set(DATAMODEL_LIBS "")
+set(DATAMODEL_LIB_PATH ${CMAKE_SOURCE_DIR}/lib)
+set(DATAMODEL_LIBS "DataModel")
 
-set(MYTOOLS_INC "")
-set(MYTOOLS_LIB_PATH "")
-set(MYTOOLS_LIBS "")
+set(MYTOOLS_LIB_PATH ${CMAKE_SOURCE_DIR}/lib)
+set(MYTOOLS_LIBS "MyTools")
 
 set(TOOLFRAMEWORK_INC "${DEPENDENCIES_PATH}/ToolFrameworkCore/include")
 set(TOOLFRAMEWORK_LIBS_PATH "${DEPENDENCIES_PATH}/ToolFrameworkCore/lib")
@@ -23,7 +23,7 @@ set(TOOLFRAMEWORK_LIBS DataModelBase Logging Store ToolChain)
 
 set(TOOLDAQ_INC "${DEPENDENCIES_PATH}/ToolDAQFramework/include")
 set(TOOLDAQ_LIBS_PATH "${DEPENDENCIES_PATH}/ToolDAQFramework/lib")
-set(TOOLDAQ_LIBS DAQDataModelBase DAQLogging DAQStore ServiceDiscovery ToolDAQChain)
+set(TOOLDAQ_LIBS ToolDAQChain DAQDataModelBase DAQLogging ServiceDiscovery DAQStore)
 
 include_directories (
    ${DATAMODEL_INC} 
@@ -45,10 +45,10 @@ target_link_libraries (
    main
    MyTools
    DataModel
+   ${TOOLDAQ_LIBS} 
+   ${TOOLFRAMEWORK_LIBS} 
    ${DATAMODEL_LIBS} 
    ${MYTOOLS_LIBS} 
-   ${TOOLFRAMEWORK_LIBS} 
-   ${TOOLDAQ_LIBS} 
    ${ZMQ_LIBS} 
    ${BOOST_LIBS} 
 )
