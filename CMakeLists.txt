@@ -3,10 +3,10 @@ cmake_minimum_required (VERSION 2.6)
 
 project (ToolDAQApplication)
 
-set(CMAKE_CXX_FLAGS "-fPIC -O3  -std=c++11 -Wno-comment")
+set(CMAKE_CXX_FLAGS "-fPIC -O3  -std=c++11 -Wno-comment -Wno-deprecated-declarations")
 
 # set DEPENDENCIES_PATH to path containing libDAQInterface, ToolDAQFramework, ToolFrameworkCore libraries
-set(DEPENDENCIES_PATH "/opt")
+set(DEPENDENCIES_PATH "/opt" CACHE STRING "ToolDAQ dependencies path")
 
 set(BOOST_LIBS boost_date_time boost_serialization boost_iostreams)
 set(ZMQ_LIBS zmq)
@@ -24,6 +24,8 @@ set(TOOLFRAMEWORK_LIBS DataModelBase Logging Store ToolChain)
 set(TOOLDAQ_INC "${DEPENDENCIES_PATH}/ToolDAQFramework/include")
 set(TOOLDAQ_LIBS_PATH "${DEPENDENCIES_PATH}/ToolDAQFramework/lib")
 set(TOOLDAQ_LIBS ToolDAQChain DAQDataModelBase DAQLogging ServiceDiscovery DAQStore)
+
+add_definitions("-DBOOST_ALLOW_DEPRECATED_HEADERS")
 
 include_directories (
    ${DATAMODEL_INC} 
